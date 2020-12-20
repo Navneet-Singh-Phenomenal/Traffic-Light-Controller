@@ -1,0 +1,152 @@
+
+								        TRAFFIC LIGHT CONTROLLER
+								      +++++++++++++++++++++++++++++
+
+
+
+
+
+				|		   |
+				|		   |
+				|  COUNTRY         |
+________________________________|    ROAD	   |______________________________
+
+
+		MAIN ROAD
+
+________________________________		    ______________________________
+				|		   |
+				|		   |
+				|     		   |
+				|                  |
+
+
+
+
+
+
+module TRAFFICLIGHT(RM,GM,YM,RC,GC,YC,X,CLK);
+  output reg RM,GM,YM;
+  output reg RC,GC,YC;
+  input X;
+  input CLK;
+  
+  reg [1:0] state;
+  reg [1:0] nextstate;
+  
+  parameter S0=0,S1=1,S2=2,S3=3;
+  
+  initial
+    state=S0;
+  
+  always@(negedge CLK)
+    begin
+      case(state)
+        S0:begin
+           nextstate=X?S1:S0;
+           RM=X?0:0;
+           GM=X?0:1;
+           YM=X?1:0;
+           RC=X?1:1;
+           GC=X?0:0;
+           YC=X?0:0;
+           end
+         S1:begin
+           nextstate=X?S2:S0;
+           RM=X?1:0;
+           GM=X?0:1;
+           YM=X?0:0;
+           RC=X?0:1;
+           GC=X?1:0;
+           YC=X?0:0;
+           end
+         S2:begin
+           nextstate=X?S2:S3;
+           RM=X?1:1;
+           GM=X?0:0;
+           YM=X?0:0;
+           RC=X?0:0;
+           GC=X?1:0;
+           YC=X?0:1;
+           end
+         S3:begin
+           nextstate=X?S0:S0;
+           RM=X?0:0;
+           GM=X?1:1;
+           YM=X?0:0;
+           RC=X?1:1;
+           GC=X?0:0;
+           YC=X?0:0;
+           end
+      endcase
+    end
+        
+  always@(nextstate)
+    	state=nextstate;
+  
+endmodule
+
+
+									        TESTBENCH
+									      +++++++++++++
+module stimulus;
+  reg X;
+  reg CLK;
+  wire RM,GM,YM;
+  wire RC,GC,YC;
+  
+  TRAFFICLIGHT DUT(RM,GM,YM,RC,GC,YC,X,CLK);
+  
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0);
+      
+      monitor;
+      
+      CLK=1;
+      forever #(5) CLK=~CLK;
+      
+    end
+  
+  initial
+    fork
+      X=0;
+      #(9) X=1;
+      #(49) X=0;
+      
+      #(100) $finish;
+      join
+  
+  task monitor;
+    $monitor($time," CLK=%b,X=%b,RM=%b,GM=%b,YM=%b,RC=%b,GC=%b,YC=%b",CLK,X,RM,GM,YM,RC,GC,YC);
+  endtask
+  
+endmodule
+
+
+
+								               OUTPUT
+									     +++++++++
+# KERNEL:                    0 CLK=1,X=0,RM=x,GM=x,YM=x,RC=x,GC=x,YC=x
+# KERNEL:                    5 CLK=0,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                    9 CLK=0,X=1,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   10 CLK=1,X=1,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   15 CLK=0,X=1,RM=0,GM=0,YM=1,RC=1,GC=0,YC=0
+# KERNEL:                   20 CLK=1,X=1,RM=0,GM=0,YM=1,RC=1,GC=0,YC=0
+# KERNEL:                   25 CLK=0,X=1,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   30 CLK=1,X=1,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   35 CLK=0,X=1,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   40 CLK=1,X=1,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   45 CLK=0,X=1,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   49 CLK=0,X=0,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   50 CLK=1,X=0,RM=1,GM=0,YM=0,RC=0,GC=1,YC=0
+# KERNEL:                   55 CLK=0,X=0,RM=1,GM=0,YM=0,RC=0,GC=0,YC=1
+# KERNEL:                   60 CLK=1,X=0,RM=1,GM=0,YM=0,RC=0,GC=0,YC=1
+# KERNEL:                   65 CLK=0,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   70 CLK=1,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   75 CLK=0,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   80 CLK=1,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   85 CLK=0,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   90 CLK=1,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
+# KERNEL:                   95 CLK=0,X=0,RM=0,GM=1,YM=0,RC=1,GC=0,YC=0
